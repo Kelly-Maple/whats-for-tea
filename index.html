@@ -1,0 +1,840 @@
+<!doctype html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>What's for Tea</title>
+<meta name="description" content="Easy dinner ideas, a weekly meal plan and a shopping list for our group.">
+<meta name="theme-color" content="#1E5A42">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="What's for Tea">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Figtree:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: phone-first app shell — sticky header, one scrolling view, fixed bottom tab bar; recipe detail slides up as a sheet. */
+:root{
+  --bg:#F3F6F0; --surface:#FFFFFF; --sunk:#E8EEE5; --ink:#17251D; --muted:#56675D; --line:#D6DFD2;
+  --brand:#1E5A42; --brand-ink:#FFFFFF; --brand-soft:#DAEAE0;
+  --accent:#E0962A; --accent-ink:#2A1A02; --accent-soft:#FBE9C8;
+  --danger:#B23B2A; --scrim:rgba(14,24,18,.45);
+  --t-Mexican:#F3D2BC; --t-Italian:#F1D4D0; --t-Asian:#D5E6CC; --t-Indian:#F4DEAA; --t-Aussie:#CBDFEA; --t-Greek:#D8DCF0; --t-Other:#E2E6DE;
+  --t-ink:#2A2A22;
+  --font-display:"Bricolage Grotesque","Avenir Next","Segoe UI",system-ui,sans-serif;
+  --font-body:"Figtree",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --r:16px; --nav-h:64px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#111814; --surface:#19221D; --sunk:#202A24; --ink:#E6EEE8; --muted:#9AACA1; --line:#2C3832;
+  --brand:#6CC59B; --brand-ink:#0C1A13; --brand-soft:#21382C;
+  --accent:#F0B457; --accent-ink:#2A1A02; --accent-soft:#3A2D16;
+  --danger:#F08A75; --scrim:rgba(0,0,0,.6);
+  --t-Mexican:#4A3225; --t-Italian:#4A2E2B; --t-Asian:#2C412E; --t-Indian:#493B1C; --t-Aussie:#233B48; --t-Greek:#2E3250; --t-Other:#2C322E;
+  --t-ink:#F1EEE5; color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --bg:#111814; --surface:#19221D; --sunk:#202A24; --ink:#E6EEE8; --muted:#9AACA1; --line:#2C3832;
+  --brand:#6CC59B; --brand-ink:#0C1A13; --brand-soft:#21382C;
+  --accent:#F0B457; --accent-ink:#2A1A02; --accent-soft:#3A2D16;
+  --danger:#F08A75; --scrim:rgba(0,0,0,.6);
+  --t-Mexican:#4A3225; --t-Italian:#4A2E2B; --t-Asian:#2C412E; --t-Indian:#493B1C; --t-Aussie:#233B48; --t-Greek:#2E3250; --t-Other:#2C322E;
+  --t-ink:#F1EEE5; color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{color-scheme:light}
+:root{padding-top:env(safe-area-inset-top,0px)}
+[hidden]{display:none!important}
+img{max-width:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font-body);font-size:15px;line-height:1.45;-webkit-tap-highlight-color:transparent}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:30;background:var(--bg)}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+h1,h2,h3{font-family:var(--font-display);text-wrap:balance;margin:0;line-height:1.1}
+.wrap{max-width:860px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+
+/* header */
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--bg);border-bottom:1px solid var(--line)}
+.top .wrap{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-block:10px}
+.brand{display:flex;align-items:baseline;gap:8px;min-width:0}
+.brand h1{font-size:22px;font-weight:800;letter-spacing:-.02em;white-space:nowrap}
+.brand h1 span{color:var(--accent)}
+.household{display:flex;align-items:center;gap:6px;background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:3px 4px 3px 12px;font-size:13px;color:var(--muted);white-space:nowrap}
+.household b{color:var(--ink);font-variant-numeric:tabular-nums;min-width:1.2em;text-align:center;font-size:15px}
+.step{width:30px;height:30px;border-radius:50%;border:0;background:var(--sunk);font-size:18px;line-height:1;display:grid;place-items:center}
+.step:active{background:var(--brand-soft)}
+
+main{padding-bottom:calc(var(--nav-h) + env(safe-area-inset-bottom,0px) + 24px)}
+.view{display:flex;flex-direction:column;gap:18px;padding-block:18px}
+.lede{font-family:var(--font-display);font-size:26px;font-weight:800;letter-spacing:-.02em}
+.sub{color:var(--muted);margin:4px 0 0}
+.label{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+
+/* chips */
+.chips{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;margin-inline:-16px;padding-inline:16px;padding-block:2px}
+.chips::-webkit-scrollbar{display:none}
+.chip{flex:none;border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:8px 14px;font-weight:600;font-size:14px}
+.chip[aria-pressed="true"]{background:var(--brand);border-color:var(--brand);color:var(--brand-ink)}
+.chip.flag[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.filters{display:flex;flex-direction:column;gap:10px}
+
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.search{flex:1 1 200px;min-width:0;border:1px solid var(--line);background:var(--surface);border-radius:12px;padding:11px 14px}
+.btn{border:0;border-radius:12px;padding:11px 16px;font-weight:700;background:var(--sunk);display:inline-flex;align-items:center;gap:8px;justify-content:center}
+.btn.primary{background:var(--brand);color:var(--brand-ink)}
+.btn.accent{background:var(--accent);color:var(--accent-ink)}
+.btn.ghost{background:transparent;border:1px solid var(--line)}
+.btn.small{padding:7px 12px;font-size:13px;border-radius:10px}
+.btn.danger{color:var(--danger);background:transparent;border:1px solid var(--line)}
+.btn:disabled{opacity:.55;cursor:default}
+.btn svg{width:18px;height:18px}
+
+/* ideas panel */
+.ideas{background:var(--brand-soft);border-radius:var(--r);padding:16px;display:flex;flex-direction:column;gap:10px}
+.ideas h2{font-size:18px}
+.ideas p{margin:0;color:var(--muted);font-size:14px}
+.ideas .row input{flex:1 1 220px;min-width:0;border:1px solid var(--line);background:var(--surface);border-radius:12px;padding:11px 14px}
+.status{font-size:14px;color:var(--muted)}
+.status.err{color:var(--danger)}
+
+.picking{background:var(--accent-soft);border-radius:12px;padding:10px 14px;display:flex;align-items:center;justify-content:space-between;gap:10px;font-weight:600}
+
+/* cards */
+.section-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+.section-head h2{font-size:19px}
+.count{color:var(--muted);font-size:13px;font-variant-numeric:tabular-nums}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(158px,1fr));gap:12px}
+.card{border:0;padding:0;text-align:left;background:var(--surface);border-radius:var(--r);overflow:hidden;display:flex;flex-direction:column;box-shadow:0 1px 0 var(--line);min-width:0}
+.card:active{transform:scale(.985)}
+.tile{position:relative;aspect-ratio:4/3;max-width:100%;color:var(--t-ink);padding:10px;display:flex;flex-direction:column;justify-content:space-between;overflow:hidden}
+.tile img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.tile .cz{font-family:var(--font-display);font-weight:800;font-size:30px;letter-spacing:-.03em;opacity:.28;line-height:.9;position:absolute;right:-4px;bottom:-4px;text-align:right}
+.badges{position:relative;display:flex;gap:6px;flex-wrap:wrap}
+.badge{font-size:11px;font-weight:700;background:var(--surface);color:var(--ink);border-radius:999px;padding:3px 8px;letter-spacing:.02em}
+.badge.ai{background:var(--brand);color:var(--brand-ink)}
+.badge.ours{background:var(--accent);color:var(--accent-ink)}
+.card .body{padding:10px 12px 12px;display:flex;flex-direction:column;gap:3px;min-width:0}
+.card h3{font-size:16px;font-weight:600;letter-spacing:-.01em}
+.meta{font-size:12.5px;color:var(--muted)}
+.empty{background:var(--surface);border:1px dashed var(--line);border-radius:var(--r);padding:22px;text-align:center;color:var(--muted)}
+.empty b{display:block;color:var(--ink);font-size:16px;margin-bottom:4px}
+
+/* plan */
+.days{display:flex;flex-direction:column;gap:10px}
+.day{background:var(--surface);border-radius:var(--r);padding:12px 14px;display:grid;grid-template-columns:58px 1fr;gap:12px;align-items:start}
+.day.today{box-shadow:inset 3px 0 0 var(--accent)}
+.dname{font-family:var(--font-display);font-weight:800;font-size:18px;line-height:1}
+.ddate{font-size:12px;color:var(--muted);margin-top:4px}
+.meals{display:flex;flex-direction:column;gap:8px;min-width:0}
+.meal{display:flex;align-items:center;gap:8px;min-width:0}
+.meal .mt{flex:1;min-width:0;border:0;background:none;padding:0;text-align:left;font-weight:600;font-size:15px}
+.meal .mt small{display:block;font-weight:400;color:var(--muted);font-size:12.5px}
+.mini{display:flex;align-items:center;gap:2px;font-size:12px;color:var(--muted);white-space:nowrap}
+.mini button{width:26px;height:26px;border-radius:50%;border:0;background:var(--sunk);line-height:1}
+.mini b{min-width:1.4em;text-align:center;color:var(--ink);font-variant-numeric:tabular-nums}
+.x{width:30px;height:30px;border-radius:50%;border:0;background:transparent;color:var(--muted);font-size:20px;line-height:1;flex:none}
+.note{display:inline-flex;align-items:center;gap:6px;background:var(--sunk);border-radius:999px;padding:4px 4px 4px 12px;font-weight:600;font-size:14px;align-self:flex-start}
+.dayacts{display:flex;gap:6px;flex-wrap:wrap}
+
+/* shop */
+.aisle{display:flex;flex-direction:column;gap:2px}
+.aisle h3{font-size:13px;font-family:var(--font-body);font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding:8px 2px}
+.item{display:flex;gap:12px;align-items:flex-start;background:var(--surface);padding:11px 14px;border-radius:12px;cursor:pointer}
+.item input{width:22px;height:22px;margin:0;accent-color:var(--brand);flex:none}
+.item .it{flex:1;min-width:0}
+.item .q{font-weight:700;font-variant-numeric:tabular-nums}
+.item small{display:block;color:var(--muted);font-size:12.5px}
+.item.done .it{text-decoration:line-through;opacity:.5}
+.addline{display:flex;gap:8px}
+.addline input{flex:1;min-width:0;border:1px solid var(--line);background:var(--surface);border-radius:12px;padding:11px 14px}
+
+/* add form */
+form.add{display:flex;flex-direction:column;gap:14px}
+.field{display:flex;flex-direction:column;gap:6px;min-width:0}
+.field label,.field .lab{font-weight:600;font-size:14px}
+.field input,.field select,.field textarea{border:1px solid var(--line);background:var(--surface);border-radius:12px;padding:11px 14px;width:100%}
+.field textarea{min-height:140px;resize:vertical;line-height:1.5}
+.field .hint{font-size:12.5px;color:var(--muted)}
+.cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px}
+.photo{border:2px dashed var(--line);border-radius:var(--r);background:var(--surface);padding:16px;display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center}
+.photo img{max-height:240px;border-radius:12px;object-fit:cover}
+.checks{display:flex;gap:8px;flex-wrap:wrap}
+.checks label{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:7px 12px;font-weight:600;font-size:14px}
+.saveinfo{font-size:13px;color:var(--muted);background:var(--sunk);border-radius:12px;padding:10px 12px}
+
+/* bottom nav */
+.nav{position:fixed;left:0;right:0;bottom:0;z-index:25;background:var(--surface);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px);padding-left:env(safe-area-inset-left,0px);padding-right:env(safe-area-inset-right,0px)}
+.nav .in{max-width:560px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr);height:var(--nav-h)}
+.nav button{border:0;background:none;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:12px;font-weight:600;color:var(--muted);position:relative}
+.nav button svg{width:24px;height:24px}
+.nav button[aria-current="page"]{color:var(--brand)}
+.nav .pip{position:absolute;top:8px;left:calc(50% + 8px);background:var(--accent);color:var(--accent-ink);font-size:10.5px;font-weight:800;border-radius:999px;min-width:18px;height:18px;padding:0 5px;display:grid;place-items:center;font-variant-numeric:tabular-nums}
+
+/* sheet */
+.scrim{position:fixed;inset:0;background:var(--scrim);z-index:40}
+.sheet{position:fixed;left:0;right:0;bottom:0;z-index:41;max-height:92%;overflow:auto;background:var(--bg);border-radius:22px 22px 0 0;padding-bottom:calc(env(safe-area-inset-bottom,0px) + 20px);animation:up .22s ease-out}
+@keyframes up{from{transform:translateY(30px);opacity:.6}to{transform:none;opacity:1}}
+@media (min-width:700px){.sheet{left:50%;right:auto;width:640px;transform:translateX(-50%);bottom:auto;top:5%;max-height:90%;border-radius:22px;animation:none}}
+.sheet .grab{width:44px;height:5px;border-radius:9px;background:var(--line);margin:10px auto 0}
+.sheet .hero{aspect-ratio:16/9;max-width:100%;position:relative;color:var(--t-ink);overflow:hidden;margin-top:10px}
+.sheet .hero img{width:100%;height:100%;object-fit:cover}
+.sheet .hero .cz{position:absolute;right:12px;bottom:4px;font-family:var(--font-display);font-weight:800;font-size:64px;letter-spacing:-.04em;opacity:.25}
+.sheet .content{display:flex;flex-direction:column;gap:16px;padding-top:16px}
+.sheet h2{font-size:26px;font-weight:800;letter-spacing:-.02em}
+.close{position:absolute;top:calc(14px);right:max(14px,env(safe-area-inset-right,0px));width:36px;height:36px;border-radius:50%;border:0;background:var(--surface);font-size:22px;line-height:1;z-index:2;box-shadow:0 1px 4px rgba(0,0,0,.15)}
+.facts{display:flex;gap:8px;flex-wrap:wrap}
+.fact{background:var(--surface);border-radius:10px;padding:6px 10px;font-size:13px;font-weight:600}
+.scale{background:var(--accent-soft);border-radius:12px;padding:10px 12px;font-size:14px}
+.ing{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;background:var(--surface);border-radius:var(--r);overflow:hidden}
+.ing li{display:flex;gap:10px;padding:10px 14px;border-bottom:1px solid var(--line)}
+.ing li:last-child{border-bottom:0}
+.ing .qq{min-width:76px;font-weight:700;font-variant-numeric:tabular-nums;color:var(--brand)}
+.steps{margin:0;padding-left:22px;display:flex;flex-direction:column;gap:10px;max-width:62ch}
+.steps li::marker{font-family:var(--font-display);font-weight:800;color:var(--accent)}
+.daypick{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+.daypick button{border:1px solid var(--line);background:var(--surface);border-radius:12px;padding:8px 0;font-weight:700;font-size:13px;display:flex;flex-direction:column;align-items:center;gap:2px}
+.daypick button small{font-weight:500;color:var(--muted);font-size:11px}
+.daypick button.has{border-color:var(--brand)}
+.daypick button.has small{color:var(--brand)}
+.copybox{width:100%;min-height:200px;border:1px solid var(--line);border-radius:12px;padding:10px;background:var(--surface)}
+
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(var(--nav-h) + env(safe-area-inset-bottom,0px) + 14px);z-index:60;background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:12px;font-weight:600;max-width:calc(100% - 32px);text-align:center;box-shadow:0 6px 20px rgba(0,0,0,.2)}
+@media (prefers-reduced-motion:reduce){.sheet{animation:none}.card:active{transform:none}}
+.cloud{font-size:13px;border-radius:12px;padding:10px 12px;background:var(--sunk);color:var(--muted)}
+.cloud.err{background:var(--accent-soft);color:var(--ink)}
+</style>
+</head>
+<body>
+
+<header class="top"><div class="wrap">
+  <div class="brand"><h1>What's for <span>Tea</span></h1></div>
+  <div class="household" aria-label="Household size">
+    Cooking for
+    <button class="step" id="hhMinus" aria-label="Fewer people">−</button>
+    <b id="hhCount">4</b>
+    <button class="step" id="hhPlus" aria-label="More people">+</button>
+  </div>
+</div></header>
+
+<main class="wrap">
+  <section class="view" id="v-discover"></section>
+  <section class="view" id="v-plan" hidden></section>
+  <section class="view" id="v-shop" hidden></section>
+  <section class="view" id="v-add" hidden></section>
+</main>
+
+<nav class="nav" aria-label="Sections"><div class="in">
+  <button data-view="discover" aria-current="page"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11h16a8 8 0 0 1-16 0Z"/><path d="M12 3v4M8.5 4.5 9.5 7M15.5 4.5 14.5 7"/></svg>Ideas</button>
+  <button data-view="plan"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>Week<span class="pip" id="pipPlan" hidden></span></button>
+  <button data-view="shop"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 7h14l-1.5 12.5a2 2 0 0 1-2 1.5h-7a2 2 0 0 1-2-1.5Z"/><path d="M9 7a3 3 0 0 1 6 0"/></svg>Shopping<span class="pip" id="pipShop" hidden></span></button>
+  <button data-view="add"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg>Add recipe</button>
+</div></nav>
+
+<div class="scrim" id="scrim" hidden></div>
+<div class="sheet" id="sheet" role="dialog" aria-modal="true" hidden></div>
+<div class="toast" id="toast" role="status" hidden></div>
+
+<script src="firebase-config.js"></script>
+<script type="module">
+{
+// ---------- reference data ----------
+const DAYS = ['mon','tue','wed','thu','fri','sat','sun'];
+const DAY_NAMES = {mon:'Monday',tue:'Tuesday',wed:'Wednesday',thu:'Thursday',fri:'Friday',sat:'Saturday',sun:'Sunday'};
+const PROTEINS = ['Chicken','Beef','Pork','Lamb','Seafood','Vegetarian'];
+const CUISINES = ['Mexican','Italian','Asian','Indian','Aussie','Greek','Other'];
+const TAGS = ['kids','onepan','slow'];
+const TAG_LABELS = {kids:'Kid-friendly',onepan:'One pan',slow:'Slow cooker'};
+const AISLES = ['Produce','Meat & seafood','Dairy & eggs','Bakery','Pantry','Freezer','Other'];
+const AC = {P:'Produce',M:'Meat & seafood',D:'Dairy & eggs',B:'Bakery',A:'Pantry',F:'Freezer'};
+
+// t title, c cuisine, p protein, m minutes, s serves, g tags, i "qty|unit|name|aisle", st steps
+const RAW = [
+ {t:'Chicken Fajitas',c:'Mexican',p:'Chicken',m:25,s:4,g:['kids','onepan'],i:['600|g|chicken breast|M','2||capsicums|P','1||red onion|P','30|g|fajita seasoning|A','8||tortillas|B','200|g|sour cream|D','1|cup|grated cheese|D','1||avocado|P','1||lime|P'],st:['Slice the chicken, capsicums and onion into strips.','Toss the chicken in the seasoning with a splash of oil.','Fry the chicken in a hot pan for 5–6 minutes, then add the veg and cook until soft.','Warm the tortillas and serve with sour cream, cheese, avocado and a squeeze of lime.']},
+ {t:'Beef Tacos',c:'Mexican',p:'Beef',m:20,s:4,g:['kids','onepan'],i:['500|g|beef mince|M','30|g|taco seasoning|A','12||taco shells|A','0.5||iceberg lettuce|P','2||tomatoes|P','1|cup|grated cheese|D','200|g|sour cream|D'],st:['Brown the mince in a pan, breaking it up as it cooks.','Stir in the seasoning and 1/3 cup water and simmer for 5 minutes.','Warm the shells in the oven.','Shred the lettuce, dice the tomatoes and let everyone build their own.']},
+ {t:'Chicken Burrito Bowls',c:'Mexican',p:'Chicken',m:30,s:4,g:['kids'],i:['500|g|chicken thigh|M','1.5|cup|rice|A','400|g|tinned black beans|A','420|g|tinned corn kernels|A','1||avocado|P','200|g|salsa|A','30|g|taco seasoning|A','1||lime|P'],st:['Cook the rice.','Coat the chicken in the seasoning and pan-fry for 6–7 minutes a side, then slice.','Warm the drained beans and corn in the same pan.','Build bowls with rice, chicken, beans, corn, avocado and salsa. Finish with lime.']},
+ {t:'Cheesy Bean Quesadillas',c:'Mexican',p:'Vegetarian',m:20,s:4,g:['kids'],i:['8||tortillas|B','400|g|tinned kidney beans|A','2|cup|grated cheese|D','1||capsicum|P','200|g|salsa|A'],st:['Mash the drained beans roughly with a fork and dice the capsicum.','Spread beans over half the tortillas, top with capsicum and cheese, then the other tortillas.','Toast in a dry pan for 2–3 minutes a side until golden and melty.','Cut into wedges and serve with salsa.']},
+ {t:'Fish Tacos',c:'Mexican',p:'Seafood',m:20,s:4,g:[],i:['500|g|white fish fillets|M','8||tortillas|B','200|g|coleslaw mix|P','100|g|mayonnaise|A','1||lime|P','1||avocado|P','1|tsp|smoked paprika|A'],st:['Sprinkle the fish with paprika and salt and pan-fry 2–3 minutes a side.','Mix the coleslaw with mayo and lime juice.','Flake the fish into warm tortillas and top with slaw and avocado.']},
+ {t:'Beef Nachos',c:'Mexican',p:'Beef',m:25,s:4,g:['kids'],i:['500|g|beef mince|M','400|g|tinned kidney beans|A','30|g|taco seasoning|A','400|g|corn chips|A','2|cup|grated cheese|D','200|g|sour cream|D','1||avocado|P','200|g|salsa|A'],st:['Brown the mince, add the seasoning, beans and 1/2 cup water and simmer 5 minutes.','Spread corn chips on a tray, top with the mince and cheese.','Bake at 200°C for 8–10 minutes until melted.','Top with sour cream, avocado and salsa.']},
+ {t:'Chicken Enchiladas',c:'Mexican',p:'Chicken',m:35,s:4,g:['kids'],i:['1||barbecue chicken|M','8||tortillas|B','500|g|salsa|A','400|g|tinned black beans|A','2|cup|grated cheese|D'],st:['Shred the chicken and mix with the beans and half the salsa.','Roll the filling up in the tortillas and pack into a baking dish.','Pour over the rest of the salsa and cover with cheese.','Bake at 190°C for 20 minutes.']},
+ {t:'Slow Cooker Chilli Con Carne',c:'Mexican',p:'Beef',m:240,s:6,g:['slow'],i:['750|g|beef mince|M','800|g|tinned kidney beans|A','800|g|tinned diced tomatoes|A','1||onion|P','35|g|chilli con carne seasoning|A','2|cup|rice|A','200|g|sour cream|D'],st:['Brown the mince and onion in a pan.','Tip into the slow cooker with the beans, tomatoes and seasoning.','Cook on low for 6 hours or high for 4.','Serve over rice with a dollop of sour cream.']},
+ {t:'Spaghetti Bolognese',c:'Italian',p:'Beef',m:40,s:4,g:['kids'],i:['500|g|beef mince|M','1||onion|P','2||garlic cloves|P','1||carrot|P','700|g|passata|A','500|g|spaghetti|A','50|g|parmesan|D'],st:['Finely chop the onion, garlic and carrot and soften in oil for 5 minutes.','Add the mince and brown it well.','Pour in the passata and simmer for 20 minutes.','Cook the spaghetti, toss through the sauce and top with parmesan.']},
+ {t:'Creamy Chicken & Mushroom Pasta',c:'Italian',p:'Chicken',m:30,s:4,g:['onepan'],i:['500|g|chicken breast|M','250|g|mushrooms|P','300|ml|thickened cream|D','2||garlic cloves|P','400|g|penne|A','100|g|baby spinach|P','50|g|parmesan|D'],st:['Cook the penne.','Brown diced chicken in a large pan, then add sliced mushrooms and garlic.','Pour in the cream and simmer 3 minutes, then stir in the spinach and parmesan.','Toss through the drained pasta.']},
+ {t:'Pita Pizzas',c:'Italian',p:'Vegetarian',m:15,s:4,g:['kids'],i:['4||pita breads|B','200|g|pizza sauce|A','2|cup|grated mozzarella|D','2||tomatoes|P','1|bunch|basil|P'],st:['Heat the oven to 220°C.','Spread sauce on the pitas and top with mozzarella and sliced tomato.','Bake for 8–10 minutes until bubbling.','Scatter with basil.']},
+ {t:'Garlic Prawn Linguine',c:'Italian',p:'Seafood',m:20,s:4,g:[],i:['500|g|raw peeled prawns|M','400|g|linguine|A','4||garlic cloves|P','250|g|cherry tomatoes|P','60|g|butter|D','1||lemon|P','1|bunch|parsley|P'],st:['Cook the linguine.','Melt the butter and fry the garlic for 1 minute, then add the halved tomatoes.','Add the prawns and cook until pink, 2–3 minutes.','Toss through the pasta with lemon juice and chopped parsley.']},
+ {t:'Pesto Chicken Pasta',c:'Italian',p:'Chicken',m:20,s:4,g:['kids'],i:['400|g|chicken breast|M','400|g|penne|A','190|g|basil pesto|A','250|g|cherry tomatoes|P','100|g|baby spinach|P','50|g|parmesan|D'],st:['Cook the pasta.','Pan-fry the diced chicken until cooked through.','Add the tomatoes and spinach until wilted.','Stir through the pasta and pesto and top with parmesan.']},
+ {t:'Lentil Bolognese',c:'Italian',p:'Vegetarian',m:30,s:4,g:['kids'],i:['800|g|tinned brown lentils|A','1||onion|P','1||carrot|P','2||garlic cloves|P','700|g|passata|A','500|g|spaghetti|A','50|g|parmesan|D'],st:['Soften the chopped onion, carrot and garlic in oil.','Add the drained lentils and passata and simmer 15 minutes.','Serve over spaghetti with parmesan.']},
+ {t:'Mac & Cheese',c:'Other',p:'Vegetarian',m:30,s:4,g:['kids'],i:['400|g|macaroni|A','50|g|butter|D','3|tbsp|plain flour|A','750|ml|milk|D','2|cup|grated cheese|D','300|g|frozen peas|F'],st:['Cook the macaroni, adding the peas for the last 2 minutes.','Melt the butter, stir in the flour for 1 minute, then whisk in the milk until thick.','Stir in most of the cheese, then the pasta.','Top with the rest of the cheese and grill until golden.']},
+ {t:'Chicken Parmi & Chips',c:'Aussie',p:'Chicken',m:35,s:4,g:['kids'],i:['4||crumbed chicken schnitzels|M','1|cup|passata|A','4||ham slices|M','1.5|cup|grated mozzarella|D','800|g|frozen chips|F','120|g|salad leaves|P'],st:['Bake the chips according to the packet.','Bake the schnitzels at 200°C for 15 minutes.','Top each with passata, a slice of ham and mozzarella and bake 8 more minutes.','Serve with chips and salad.']},
+ {t:'Snags, Mash & Onion Gravy',c:'Aussie',p:'Beef',m:35,s:4,g:['kids'],i:['8||beef sausages|M','1|kg|potatoes|P','2||onions|P','50|g|butter|D','100|ml|milk|D','30|g|gravy powder|A','300|g|frozen peas|F'],st:['Boil the peeled potatoes until soft, then mash with butter and milk.','Cook the sausages in a pan or on the barbie.','Slice the onions and fry until soft, then add gravy made up with hot water.','Serve with peas.']},
+ {t:'Lamb Chops & Roast Veg',c:'Aussie',p:'Lamb',m:50,s:4,g:['onepan'],i:['8||lamb loin chops|M','800|g|potatoes|P','500|g|pumpkin|P','1||red onion|P','2|tbsp|olive oil|A','1|tsp|dried rosemary|A'],st:['Cut the potatoes, pumpkin and onion into chunks and toss with oil, rosemary and salt.','Roast at 200°C for 35 minutes.','Pan-fry the chops 3–4 minutes a side.','Rest for 5 minutes and serve with the veg.']},
+ {t:'Steak, Chips & Salad',c:'Aussie',p:'Beef',m:30,s:4,g:[],i:['4||scotch fillet steaks|M','800|g|frozen chips|F','120|g|salad leaves|P','250|g|cherry tomatoes|P','1||cucumber|P'],st:['Bake the chips.','Bring the steaks to room temperature and season well.','Cook in a very hot pan, 3–4 minutes a side for medium. Rest 5 minutes.','Toss the salad and serve.']},
+ {t:'Shepherd’s Pie',c:'Aussie',p:'Lamb',m:55,s:4,g:['kids'],i:['500|g|lamb mince|M','1||onion|P','2||carrots|P','300|g|frozen peas|F','2|tbsp|tomato paste|A','250|ml|beef stock|A','1|kg|potatoes|P','50|g|butter|D'],st:['Boil and mash the potatoes with butter.','Brown the mince with the diced onion and carrot.','Stir in the tomato paste, stock and peas and simmer 10 minutes.','Spoon into a dish, top with mash and bake at 200°C for 20 minutes.']},
+ {t:'Crumbed Fish & Chips',c:'Aussie',p:'Seafood',m:30,s:4,g:['kids'],i:['600|g|white fish fillets|M','1|cup|panko crumbs|A','2||eggs|D','800|g|frozen chips|F','1||lemon|P','120|g|salad leaves|P'],st:['Bake the chips.','Dip the fish in beaten egg then crumbs.','Shallow-fry 3 minutes a side until golden.','Serve with lemon wedges and salad.']},
+ {t:'Corn Fritters & Bacon',c:'Aussie',p:'Pork',m:25,s:4,g:['kids'],i:['420|g|tinned corn kernels|A','1|cup|self-raising flour|A','2||eggs|D','125|ml|milk|D','6||bacon rashers|M','1||avocado|P','250|g|cherry tomatoes|P'],st:['Whisk the flour, eggs and milk into a batter and fold in the drained corn.','Fry spoonfuls in oil for 2 minutes a side.','Crisp the bacon in another pan.','Serve with avocado and tomatoes.']},
+ {t:'Chicken Caesar Wraps',c:'Other',p:'Chicken',m:15,s:4,g:['kids'],i:['1||barbecue chicken|M','6||wraps|B','1||cos lettuce|P','4||bacon rashers|M','100|ml|caesar dressing|A','50|g|parmesan|D'],st:['Crisp the bacon and chop it up.','Shred the chicken and lettuce.','Toss with dressing and parmesan and roll up in the wraps.']},
+ {t:'Sweet Chilli Chicken Tray Bake',c:'Asian',p:'Chicken',m:45,s:4,g:['onepan','kids'],i:['800|g|chicken thigh|M','125|ml|sweet chilli sauce|A','500|g|sweet potato|P','1||red capsicum|P','1||broccoli|P'],st:['Heat the oven to 200°C.','Toss the chicken and chopped sweet potato with half the sauce on a lined tray.','Roast for 25 minutes, add the capsicum and broccoli and the rest of the sauce.','Roast 12 more minutes.']},
+ {t:'Honey Soy Drumsticks',c:'Asian',p:'Chicken',m:50,s:4,g:['kids','onepan'],i:['1.2|kg|chicken drumsticks|M','80|ml|honey|A','80|ml|soy sauce|A','2||garlic cloves|P','1.5|cup|rice|A','1||broccoli|P'],st:['Mix the honey, soy and crushed garlic and coat the drumsticks.','Bake at 200°C for 40 minutes, turning halfway.','Cook the rice and steam the broccoli.','Spoon the sticky juices over everything.']},
+ {t:'Beef & Broccoli Stir-fry',c:'Asian',p:'Beef',m:20,s:4,g:['onepan'],i:['500|g|beef stir-fry strips|M','1||broccoli|P','1||onion|P','60|ml|oyster sauce|A','2|tbsp|soy sauce|A','1|tbsp|grated ginger|P','1.5|cup|rice|A'],st:['Cook the rice.','Stir-fry the beef in batches in a very hot wok and set aside.','Stir-fry the onion and broccoli with the ginger for 3 minutes.','Return the beef, add the sauces and toss for 1 minute.']},
+ {t:'Chicken Fried Rice',c:'Asian',p:'Chicken',m:25,s:4,g:['onepan','kids'],i:['1.5|cup|rice|A','300|g|chicken thigh|M','3||eggs|D','300|g|frozen mixed veg|F','4||spring onions|P','3|tbsp|soy sauce|A'],st:['Cook the rice (day-old rice is even better).','Scramble the eggs in a wok and set aside.','Stir-fry the diced chicken, then the frozen veg.','Add the rice, soy sauce, egg and spring onions and toss until hot.']},
+ {t:'Thai Green Chicken Curry',c:'Asian',p:'Chicken',m:30,s:4,g:['onepan'],i:['600|g|chicken thigh|M','4|tbsp|green curry paste|A','400|ml|coconut milk|A','1||zucchini|P','150|g|green beans|P','1.5|cup|jasmine rice|A','1|bunch|Thai basil|P'],st:['Cook the rice.','Fry the curry paste for 1 minute, then add the sliced chicken.','Pour in the coconut milk and simmer 10 minutes.','Add the zucchini and beans for 4 minutes and finish with basil.']},
+ {t:'Teriyaki Salmon',c:'Asian',p:'Seafood',m:20,s:4,g:[],i:['4||salmon fillets|M','125|ml|teriyaki sauce|A','1.5|cup|rice|A','2|bunch|broccolini|P','1|tbsp|sesame seeds|A'],st:['Cook the rice.','Pan-fry the salmon skin-side down 4 minutes, flip for 2.','Pour in the teriyaki and let it bubble and coat the fish.','Serve with steamed broccolini and sesame seeds.']},
+ {t:'Hokkien Veggie Noodles',c:'Asian',p:'Vegetarian',m:15,s:4,g:['onepan'],i:['450|g|hokkien noodles|A','1||capsicum|P','1||carrot|P','150|g|snow peas|P','4|tbsp|kecap manis|A','2||eggs|D'],st:['Soak the noodles in hot water to loosen.','Stir-fry the sliced veg for 3 minutes.','Push to the side and scramble the eggs.','Add the noodles and kecap manis and toss well.']},
+ {t:'Pork San Choy Bow',c:'Asian',p:'Pork',m:20,s:4,g:['onepan'],i:['500|g|pork mince|M','1||iceberg lettuce|P','225|g|tinned water chestnuts|A','3|tbsp|oyster sauce|A','2|tbsp|soy sauce|A','4||spring onions|P','1||carrot|P'],st:['Brown the mince in a wok.','Add the grated carrot and chopped water chestnuts and cook 2 minutes.','Stir in the sauces and spring onions.','Spoon into lettuce cups.']},
+ {t:'Slow Cooker Beef Massaman',c:'Asian',p:'Beef',m:300,s:6,g:['slow'],i:['1|kg|chuck steak|M','4|tbsp|massaman curry paste|A','400|ml|coconut milk|A','500|g|potatoes|P','1||onion|P','50|g|roasted peanuts|A','2|cup|jasmine rice|A'],st:['Cut the beef and potatoes into chunks.','Put everything except the peanuts in the slow cooker.','Cook on low for 7 hours or high for 5.','Serve over rice with peanuts on top.']},
+ {t:'Satay Chicken',c:'Asian',p:'Chicken',m:25,s:4,g:['kids'],i:['600|g|chicken thigh|M','250|g|satay sauce|A','1.5|cup|rice|A','1||cucumber|P','1||carrot|P'],st:['Cook the rice.','Pan-fry the sliced chicken until golden.','Stir through the satay sauce and warm.','Serve with rice and sliced cucumber and carrot.']},
+ {t:'Butter Chicken',c:'Indian',p:'Chicken',m:30,s:4,g:['kids','onepan'],i:['700|g|chicken thigh|M','485|g|butter chicken simmer sauce|A','1.5|cup|basmati rice|A','4||naan breads|B','100|g|natural yoghurt|D'],st:['Cook the rice.','Brown the diced chicken in a large pan.','Pour in the sauce and simmer 15 minutes.','Serve with warm naan and a spoon of yoghurt.']},
+ {t:'Chickpea & Spinach Curry',c:'Indian',p:'Vegetarian',m:30,s:4,g:['onepan'],i:['800|g|tinned chickpeas|A','400|g|tinned diced tomatoes|A','400|ml|coconut milk|A','1||onion|P','3|tbsp|tikka curry paste|A','120|g|baby spinach|P','1.5|cup|basmati rice|A'],st:['Cook the rice.','Soften the onion, then fry the curry paste for 1 minute.','Add the chickpeas, tomatoes and coconut milk and simmer 15 minutes.','Stir through the spinach until wilted.']},
+ {t:'Pulled Pork Burgers',c:'Other',p:'Pork',m:360,s:6,g:['slow','kids'],i:['1.2|kg|pork shoulder|M','250|ml|barbecue sauce|A','8||brioche buns|B','400|g|coleslaw mix|P','100|g|mayonnaise|A'],st:['Put the pork and half the sauce in the slow cooker.','Cook on low for 8 hours or high for 6.','Shred with two forks and stir through the rest of the sauce.','Pile into buns with slaw tossed in mayo.']},
+ {t:'Lamb Souvlaki Wraps',c:'Greek',p:'Lamb',m:25,s:4,g:[],i:['600|g|lamb leg strips|M','1||lemon|P','1|tsp|dried oregano|A','4||pita breads|B','200|g|tzatziki|D','2||tomatoes|P','1||cucumber|P','1||red onion|P'],st:['Toss the lamb with lemon juice, oregano, oil and salt.','Cook in a hot pan 3–4 minutes.','Warm the pitas and fill with lamb, tzatziki, tomato, cucumber and onion.']},
+ {t:'Haloumi Veg Tray Bake',c:'Greek',p:'Vegetarian',m:35,s:4,g:['onepan'],i:['250|g|haloumi|D','1||zucchini|P','1||red capsicum|P','1||red onion|P','250|g|cherry tomatoes|P','400|g|tinned chickpeas|A','100|g|baby spinach|P'],st:['Chop the veg and toss with the chickpeas, oil and salt on a tray.','Roast at 210°C for 20 minutes.','Add sliced haloumi on top and roast 10 more minutes.','Toss through the spinach.']},
+ {t:'Chicken Noodle Soup',c:'Other',p:'Chicken',m:35,s:4,g:['kids'],i:['500|g|chicken breast|M','1.5|l|chicken stock|A','2||carrots|P','2||celery sticks|P','1||onion|P','200|g|egg noodles|A'],st:['Soften the diced onion, carrot and celery in a big pot.','Add the stock and whole chicken breasts and simmer 15 minutes.','Lift out and shred the chicken.','Add the noodles for 4 minutes, then return the chicken.']},
+ {t:'Pumpkin Soup',c:'Other',p:'Vegetarian',m:40,s:4,g:['onepan'],i:['1.2|kg|pumpkin|P','1||onion|P','2||garlic cloves|P','1|l|vegetable stock|A','100|ml|cream|D','1||baguette|B'],st:['Soften the onion and garlic in a big pot.','Add the chopped pumpkin and stock and simmer 20 minutes until soft.','Blend until smooth and stir in the cream.','Serve with crusty bread.']}
+];
+
+// ---------- helpers ----------
+const $ = s => document.querySelector(s);
+function h(tag, props, ...kids){
+  const el = document.createElement(tag);
+  if (props) for (const [k,v] of Object.entries(props)){
+    if (v == null || v === false) continue;
+    if (k === 'class') el.className = v;
+    else if (k.startsWith('on')) el.addEventListener(k.slice(2), v);
+    else el.setAttribute(k, v === true ? '' : v);
+  }
+  for (const k of kids.flat(9)){ if (k == null || k === false) continue; el.append(k instanceof Node ? k : document.createTextNode(String(k))); }
+  return el;
+}
+const svg = html => { const t = document.createElement('template'); t.innerHTML = html.trim(); return t.content.firstChild; };
+const ICON_SPARK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8Z"/><path d="M19 17l.7 1.8 1.8.7-1.8.7L19 22l-.7-1.8-1.8-.7 1.8-.7Z"/></svg>';
+const ICON_DICE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="4"/><circle cx="8.5" cy="8.5" r="1.2" fill="currentColor"/><circle cx="15.5" cy="15.5" r="1.2" fill="currentColor"/><circle cx="12" cy="12" r="1.2" fill="currentColor"/></svg>';
+const lsGet = k => { try { return JSON.parse(localStorage.getItem(k)); } catch { return null; } };
+const lsSet = (k,v) => { try { localStorage.setItem(k, JSON.stringify(v)); return true; } catch { return false; } };
+const clone = o => JSON.parse(JSON.stringify(o));
+const uidGen = () => Date.now().toString(36) + Math.random().toString(36).slice(2,8);
+const clampNum = (v,lo,hi,d) => { const n = Number(v); return isFinite(n) && n >= lo ? Math.min(hi, Math.round(n)) : d; };
+function shuffle(a){ a = a.slice(); for (let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+
+const UNIT_MAP = {g:'g',gram:'g',grams:'g',kg:'kg',kilo:'kg',kilos:'kg',ml:'ml',l:'l',litre:'l',litres:'l',liter:'l',liters:'l',cup:'cup',cups:'cup',tbsp:'tbsp',tablespoon:'tbsp',tablespoons:'tbsp',tsp:'tsp',teaspoon:'tsp',teaspoons:'tsp',tin:'tin',tins:'tin',can:'tin',cans:'tin',packet:'packet',packets:'packet',pack:'packet',jar:'jar',jars:'jar',bunch:'bunch',bunches:'bunch',clove:'clove',cloves:'clove',slice:'slice',slices:'slice',handful:'handful',handfuls:'handful',pinch:'pinch'};
+const normUnit = u => { u = String(u||'').trim().toLowerCase().replace(/\.$/,''); return UNIT_MAP[u] ?? u.slice(0,16); };
+const FR = {'½':.5,'¼':.25,'¾':.75,'⅓':1/3,'⅔':2/3};
+function parseLine(line){
+  let s = String(line).trim().replace(/^[-•*·]\s*/,''); if (!s) return null;
+  let q = null, m;
+  if ((m = s.match(/^(\d+)\s+(\d+)\/(\d+)\s*/))) q = +m[1] + m[2]/m[3];
+  else if ((m = s.match(/^(\d+)\/(\d+)\s*/))) q = m[1]/m[2];
+  else if ((m = s.match(/^(\d+(?:\.\d+)?)?\s*([½¼¾⅓⅔])\s*/))) q = (+m[1]||0) + FR[m[2]];
+  else if ((m = s.match(/^(\d+(?:[.,]\d+)?)\s*/))) q = parseFloat(m[1].replace(',','.'));
+  if (m) s = s.slice(m[0].length);
+  let u = '';
+  const um = s.match(/^(kg|kilos?|grams?|g|ml|litres?|liters?|l|cups?|tbsp|tablespoons?|tsp|teaspoons?|tins?|cans?|packets?|pack|jars?|bunch(?:es)?|cloves?|slices?|handfuls?|pinch)\b\.?\s*/i);
+  if (q != null && um){ u = normUnit(um[1]); s = s.slice(um[0].length); }
+  s = s.replace(/^of\s+/i,'').trim();
+  if (!s) return null;
+  return {q, u, n: s.slice(0,80), a: guessAisle(s)};
+}
+const AISLE_RULES = [
+  ['Freezer', /frozen/],
+  ['Pantry', /\b(tin|tinned|canned|jar|sauce|paste|stock|rice|pasta|spaghetti|penne|macaroni|linguine|noodle|flour|sugar|oil|spice|seasoning|vinegar|honey|coconut|chips|crumbs|lentil|chickpea|oats|salt|pepper|cumin|paprika|oregano|curry|pesto|passata|mayo|mayonnaise|dressing|shells|nuts|peanuts|sesame)/],
+  ['Meat & seafood', /chicken|beef|pork|lamb|mince|sausage|snag|steak|bacon|ham|prawn|salmon|fish|tuna|chorizo|turkey|schnitzel|chook|chop/],
+  ['Dairy & eggs', /milk|cheese|cream|butter|yoghurt|yogurt|egg|parmesan|mozzarella|feta|haloumi|tzatziki/],
+  ['Bakery', /bread|bun|roll|wrap|tortilla|pita|naan|baguette/],
+  ['Produce', /onion|garlic|tomato|capsicum|carrot|potato|lettuce|spinach|broccoli|zucchini|mushroom|avocado|lime|lemon|herb|coriander|parsley|basil|ginger|chilli|cucumber|celery|pumpkin|corn|bean|pea|apple|banana|leaf|leaves|kale|cabbage|shallot|slaw|salad|rocket|eggplant|cauliflower|sweet potato|asparagus/]
+];
+function guessAisle(n){ n = String(n).toLowerCase(); for (const [a,re] of AISLE_RULES) if (re.test(n)) return a; return 'Other'; }
+function guessProtein(ing){ const t = ing.map(i=>i.n.toLowerCase()).join(' ');
+  if (/chicken|chook/.test(t)) return 'Chicken'; if (/beef|steak|mince/.test(t)) return 'Beef'; if (/pork|bacon|ham/.test(t)) return 'Pork';
+  if (/lamb/.test(t)) return 'Lamb'; if (/fish|prawn|salmon|tuna/.test(t)) return 'Seafood'; return 'Vegetarian'; }
+
+function cleanRecipe(x, src, id){
+  if (!x || typeof x !== 'object') return null;
+  const str = (v,n) => typeof v === 'string' ? v.slice(0,n) : '';
+  const title = str(x.title,80).trim(); if (!title) return null;
+  const rawIng = Array.isArray(x.ing) ? x.ing : Array.isArray(x.ingredients) ? x.ingredients : [];
+  const ing = rawIng.slice(0,40).map(i => {
+    if (typeof i === 'string') return parseLine(i);
+    if (!i || typeof i !== 'object') return null;
+    const n = str(i.n ?? i.name, 80).trim(); if (!n) return null;
+    const q = typeof i.q === 'number' && isFinite(i.q) && i.q > 0 ? i.q : null;
+    return {q, u: normUnit(str(i.u ?? i.unit, 20)), n, a: AISLES.includes(i.a) ? i.a : guessAisle(n)};
+  }).filter(Boolean);
+  const steps = (Array.isArray(x.steps) ? x.steps : []).slice(0,20).map(s => str(s,500).trim()).filter(Boolean);
+  return {
+    id, src, title,
+    cuisine: CUISINES.includes(x.cuisine) ? x.cuisine : 'Other',
+    protein: PROTEINS.includes(x.protein) ? x.protein : guessProtein(ing),
+    tags: (Array.isArray(x.tags) ? x.tags : []).filter(t => TAGS.includes(t)),
+    time: clampNum(x.time,1,720,30), serves: clampNum(x.serves,1,20,4),
+    blurb: str(x.blurb,240), steps, ing,
+    photo: typeof x.photo === 'string' && /^data:image\/(jpeg|png|webp);base64,[A-Za-z0-9+/=]+$/.test(x.photo) ? x.photo : null,
+    by: typeof x.by === 'string' ? x.by.slice(0,80) : null,
+    byName: typeof x.byName === 'string' ? x.byName.slice(0,40) : '',
+    createdAt: typeof x.createdAt === 'number' ? x.createdAt : 0
+  };
+}
+const BUILT = RAW.map((r,k) => cleanRecipe({title:r.t,cuisine:r.c,protein:r.p,time:r.m,serves:r.s,tags:r.g,steps:r.st,
+  ing:r.i.map(l => { const [q,u,n,a] = l.split('|'); return {q:q?+q:null,u,n,a:AC[a]}; })}, 'builtin', 'b'+(k+1)));
+
+function round(q, step){ return Math.round(q/step)*step; }
+function frac(q){
+  const w = Math.floor(q + 1e-9), f = q - w;
+  const map = [[0,''],[.25,'¼'],[1/3,'⅓'],[.5,'½'],[2/3,'⅔'],[.75,'¾'],[1,'']];
+  let best = map[0]; for (const e of map) if (Math.abs(f-e[0]) < Math.abs(f-best[0])) best = e;
+  const whole = best[0] === 1 ? w+1 : w;
+  return (whole ? String(whole) : '') + best[1] || '0';
+}
+const COUNTY = new Set(['','tin','packet','jar','bunch','clove','slice']);
+function fmtQty(q, u, shop){
+  if (q == null || !isFinite(q) || q <= 0) return '';
+  if (u === 'kg'){ q *= 1000; u = 'g'; } if (u === 'l'){ q *= 1000; u = 'ml'; }
+  if (u === 'g') return q >= 1000 ? (+(round(q/1000,.05)).toFixed(2)) + ' kg' : round(q, q < 100 ? 5 : 10) + ' g';
+  if (u === 'ml') return q >= 1000 ? (+(round(q/1000,.05)).toFixed(2)) + ' L' : round(q, q < 100 ? 5 : 10) + ' ml';
+  if (shop && COUNTY.has(u)) q = Math.max(1, Math.ceil(q - 0.15));
+  const n = frac(q);
+  if (!u) return n;
+  const plural = q > 1 && ['cup','tin','packet','jar','bunch','clove','slice','handful'].includes(u) ? (u === 'bunch' ? 'es' : 's') : '';
+  return n + ' ' + u + plural;
+}
+
+// ---------- state ----------
+const PLAN_KEY = 'wft-plan-v1', MINE_KEY = 'wft-mine-v1', UI_KEY = 'wft-ui-v1';
+function emptyPlan(){ return {servings:4, days:{}, extras:[], checked:{}, updatedAt:0}; }
+function cleanPlan(p){
+  const out = emptyPlan(); if (!p || typeof p !== 'object') return out;
+  out.servings = clampNum(p.servings,1,20,4); out.updatedAt = typeof p.updatedAt === 'number' ? p.updatedAt : 0;
+  for (const d of DAYS){ const list = Array.isArray(p.days?.[d]) ? p.days[d] : [];
+    out.days[d] = list.slice(0,6).map(e => {
+      if (e && e.type === 'note' && typeof e.label === 'string') return {type:'note', label:e.label.slice(0,30)};
+      if (e && e.type === 'meal'){ const r = cleanRecipe(e.r, e.r?.src || 'snap', String(e.r?.id || uidGen())); if (!r) return null;
+        return {type:'meal', key: typeof e.key === 'string' ? e.key : uidGen(), r, serves: e.serves == null ? null : clampNum(e.serves,1,20,null)}; }
+      return null; }).filter(Boolean); }
+  out.extras = (Array.isArray(p.extras) ? p.extras : []).slice(0,100).filter(x => x && typeof x.n === 'string').map(x => ({id: String(x.id||uidGen()), n: x.n.slice(0,80), done: !!x.done}));
+  if (p.checked && typeof p.checked === 'object') for (const [k,v] of Object.entries(p.checked)) if (v === true) out.checked[k.slice(0,120)] = true;
+  return out;
+}
+const S = {
+  view: 'discover', protein: 'Any', cuisine: 'Any', flags: new Set(), q: '', source: 'all',
+  shared: [], mine: (lsGet(MINE_KEY) || []).map(r => cleanRecipe(r,'mine',r?.id || uidGen())).filter(Boolean),
+  plan: cleanPlan(lsGet(PLAN_KEY)), picking: null
+};
+try { const ui = lsGet(UI_KEY); if (ui){ if (PROTEINS.includes(ui.protein)) S.protein = ui.protein; if (CUISINES.includes(ui.cuisine)) S.cuisine = ui.cuisine; } } catch {}
+
+// ---------- persistence ----------
+// The week plan and shopping list live on each phone. The recipe book is shared through Firebase.
+const NAME_KEY = 'wft-name-v1';
+const FB = 'https://www.gstatic.com/firebasejs/10.12.2/';
+let F = null, fsdb = null, uid = null;
+let cloud = 'off', cloudErr = '';   // off: not set up · connecting · on · error
+function savePlan(){ S.plan.updatedAt = Date.now(); lsSet(PLAN_KEY, S.plan); renderPips(); }
+function snapshot(r){ const c = clone(r); delete c.photo; return c; }
+
+async function initCloud(){
+  const cfg = window.FIREBASE_CONFIG;
+  if (!cfg || typeof cfg.apiKey !== 'string' || !cfg.apiKey || /PASTE/i.test(cfg.apiKey)){ cloud = 'off'; render(); renderAdd(); return; }
+  cloud = 'connecting'; render();
+  try {
+    const [appMod, authMod, fs] = await Promise.all([import(FB + 'firebase-app.js'), import(FB + 'firebase-auth.js'), import(FB + 'firebase-firestore.js')]);
+    const app = appMod.initializeApp(cfg);
+    const cred = await authMod.signInAnonymously(authMod.getAuth(app));
+    uid = cred.user.uid; F = fs; fsdb = fs.getFirestore(app);
+    fs.onSnapshot(fs.collection(fsdb, 'recipes'), snap => {
+      S.shared = snap.docs.map(d => cleanRecipe(d.data(), 'shared', d.id)).filter(Boolean).sort((a,b) => b.createdAt - a.createdAt);
+      if (cloud !== 'on'){ cloud = 'on'; renderAdd(); }
+      render();
+    }, err => { cloud = 'error'; cloudErr = err?.code || ''; render(); renderAdd(); });
+  } catch (e) { cloud = 'error'; cloudErr = e?.code || e?.message || ''; render(); renderAdd(); }
+}
+function cloudNote(){
+  if (cloud === 'on') return null;
+  if (cloud === 'connecting') return h('div', {class:'cloud'}, 'Connecting to the shared recipe book…');
+  if (cloud === 'off') return h('div', {class:'cloud err'}, 'The shared recipe book isn’t connected yet, so recipes you add stay on this phone. (Setup: fill in firebase-config.js.)');
+  const hint = /operation-not-allowed|admin-restricted/.test(cloudErr) ? ' Turn on Anonymous sign-in in Firebase.'
+    : /permission-denied/.test(cloudErr) ? ' Check the Firestore rules.' : ' Check your internet connection.';
+  return h('div', {class:'cloud err'}, 'Can’t reach the shared recipe book right now.' + hint + ' Everything else still works.');
+}
+
+// ---------- UI bits ----------
+let toastTimer;
+function toast(msg){ const t = $('#toast'); t.textContent = msg; t.hidden = false; clearTimeout(toastTimer); toastTimer = setTimeout(() => t.hidden = true, 2600); }
+function servingsFor(e){ return e.serves ?? S.plan.servings; }
+function mealsCount(){ return DAYS.reduce((n,d) => n + (S.plan.days[d]||[]).filter(e => e.type === 'meal').length, 0); }
+function weekDates(){ const d = new Date(); const off = (d.getDay()+6)%7; return DAYS.map((_,i) => new Date(d.getFullYear(), d.getMonth(), d.getDate()-off+i)); }
+const fmtDate = d => d.toLocaleDateString('en-AU', {day:'numeric', month:'short'});
+const todayKey = () => DAYS[(new Date().getDay()+6)%7];
+function minutes(m){ return m >= 90 ? (Math.round(m/30)/2) + ' hr' : m + ' min'; }
+function byLine(r){
+  if (r.src === 'mine') return 'Saved on this phone';
+  if (r.src === 'shared'){ if (r.by && r.by === uid) return 'Added by you'; return r.byName ? 'Added by ' + r.byName : 'From our recipe book'; }
+  return '';
+}
+
+function tile(r, cls){
+  const el = h('div', {class: cls, style: 'background:var(--t-' + r.cuisine + ')'});
+  if (r.photo) el.append(h('img', {src: r.photo, alt: ''}));
+  else el.append(h('span', {class:'cz', 'aria-hidden':'true'}, r.cuisine === 'Other' ? r.protein : r.cuisine));
+  return el;
+}
+function card(r){
+  const t = tile(r, 'tile');
+  const badges = h('div', {class:'badges'}, h('span', {class:'badge'}, minutes(r.time)),
+    r.src === 'shared' || r.src === 'mine' ? h('span', {class:'badge ours'}, 'Our book') : null);
+  t.prepend(badges);
+  return h('button', {class:'card', onclick: () => openRecipe(r)}, t,
+    h('div', {class:'body'}, h('h3', null, r.title),
+      h('div', {class:'meta'}, [r.cuisine === 'Other' ? null : r.cuisine, r.protein, r.tags.includes('slow') ? 'Slow cooker' : null].filter(Boolean).join(' · '))));
+}
+
+function allRecipes(){ return [...S.shared, ...S.mine, ...BUILT]; }
+function matches(r){
+  if (S.protein !== 'Any' && r.protein !== S.protein) return false;
+  if (S.cuisine !== 'Any' && r.cuisine !== S.cuisine) return false;
+  if (S.flags.has('quick') && r.time > 30) return false;
+  for (const f of TAGS) if (S.flags.has(f) && !r.tags.includes(f)) return false;
+  if (S.source === 'ours' && r.src === 'builtin') return false;
+  if (S.q){ const q = S.q.toLowerCase(); if (!r.title.toLowerCase().includes(q) && !r.ing.some(i => i.n.toLowerCase().includes(q))) return false; }
+  return true;
+}
+
+// ---------- views ----------
+function chipRow(label, opts, cur, set, cls){
+  return h('div', {class:'chips', role:'group', 'aria-label': label},
+    opts.map(o => h('button', {class:'chip ' + (cls||''), 'aria-pressed': String(cur(o)), onclick: () => { set(o); renderDiscover(); }}, o.label ?? o)));
+}
+function renderDiscover(){
+  const v = $('#v-discover'); const keepFocus = document.activeElement?.id; const caret = document.activeElement?.selectionStart;
+  v.replaceChildren();
+  if (S.picking) v.append(h('div', {class:'picking'}, 'Pick a dinner for ' + DAY_NAMES[S.picking],
+    h('button', {class:'btn small ghost', onclick: () => { S.picking = null; go('plan'); }}, 'Cancel')));
+  v.append(h('div', null, h('div', {class:'lede'}, 'What do you feel like?'),
+    h('p', {class:'sub'}, 'Pick a main or a style. Every recipe scales to the ' + S.plan.servings + (S.plan.servings === 1 ? ' person' : ' people') + ' you’re cooking for.')));
+  const saveUi = () => lsSet(UI_KEY, {protein:S.protein, cuisine:S.cuisine});
+  v.append(h('div', {class:'filters'},
+    chipRow('Main ingredient', ['Any', ...PROTEINS], o => S.protein === o, o => { S.protein = o; saveUi(); }),
+    chipRow('Style', ['Any', ...CUISINES.filter(c => c !== 'Other')], o => S.cuisine === o, o => { S.cuisine = o; saveUi(); }),
+    chipRow('Extras', [{k:'quick',label:'Under 30 min'},{k:'kids',label:'Kid-friendly'},{k:'onepan',label:'One pan'},{k:'slow',label:'Slow cooker'},{k:'ours',label:'Our book only'}],
+      o => o.k === 'ours' ? S.source === 'ours' : S.flags.has(o.k),
+      o => { if (o.k === 'ours') S.source = S.source === 'ours' ? 'all' : 'ours'; else S.flags.has(o.k) ? S.flags.delete(o.k) : S.flags.add(o.k); }, 'flag')));
+
+  const list = allRecipes().filter(matches);
+  v.append(h('div', {class:'row'},
+    h('input', {class:'search', id:'q', type:'search', placeholder:'Search recipes or ingredients', value: S.q, 'aria-label':'Search recipes',
+      oninput: e => { S.q = e.target.value; renderDiscover(); }}),
+    h('button', {class:'btn accent', disabled: !list.length || null, onclick: () => openRecipe(list[Math.floor(Math.random()*list.length)])}, svg(ICON_DICE), 'Surprise me')));
+
+  if (S.source === 'ours') v.append(cloudNote());
+
+  v.append(h('div', {class:'section-head'}, h('h2', null, S.source === 'ours' ? 'Our recipe book' : 'Recipes'), h('span', {class:'count'}, list.length + ' match')));
+  v.append(list.length ? h('div', {class:'grid'}, list.map(card))
+    : h('div', {class:'empty'}, h('b', null, 'Nothing matches yet'), S.source === 'ours' ? 'Add a family favourite from the Add recipe tab and it will show up here.' : 'Try fewer filters.'));
+  if (keepFocus === 'q'){ const q = $('#q'); q.focus(); try { q.setSelectionRange(caret, caret); } catch {} }
+}
+
+function renderPlan(){
+  const v = $('#v-plan'); v.replaceChildren();
+  const dates = weekDates(); const n = mealsCount();
+  v.append(h('div', null, h('div', {class:'lede'}, 'This week'),
+    h('p', {class:'sub'}, 'Week of ' + fmtDate(dates[0]) + ' · ' + (n ? n + (n === 1 ? ' dinner planned' : ' dinners planned') : 'nothing planned yet'))));
+  v.append(h('div', {class:'row'},
+    h('button', {class:'btn primary', onclick: fillWeek}, svg(ICON_DICE), 'Fill empty nights'),
+    h('button', {class:'btn ghost', disabled: !n || null, onclick: copyWeek}, 'Copy week to share'),
+    h('button', {class:'btn ghost', id:'clearWeek', disabled: !(n || DAYS.some(d => (S.plan.days[d]||[]).length)) || null, onclick: clearWeek}, 'Clear week')));
+  const today = todayKey();
+  v.append(h('div', {class:'days'}, DAYS.map((d,i) => {
+    const entries = S.plan.days[d] || [];
+    return h('div', {class:'day' + (d === today ? ' today' : '')},
+      h('div', null, h('div', {class:'dname'}, DAY_NAMES[d].slice(0,3)), h('div', {class:'ddate'}, fmtDate(dates[i]))),
+      h('div', {class:'meals'},
+        entries.map((e,k) => e.type === 'note'
+          ? h('span', {class:'note'}, e.label, h('button', {class:'x', 'aria-label':'Remove', onclick: () => removeEntry(d,k)}, '×'))
+          : h('div', {class:'meal'},
+              h('button', {class:'mt', onclick: () => openRecipe(e.r, e)}, e.r.title, h('small', null, minutes(e.r.time) + ' · ' + e.r.protein)),
+              h('span', {class:'mini'},
+                h('button', {'aria-label':'Fewer serves', onclick: () => bumpServes(e,-1)}, '−'),
+                h('b', null, servingsFor(e)),
+                h('button', {'aria-label':'More serves', onclick: () => bumpServes(e,1)}, '+')),
+              h('button', {class:'x', 'aria-label':'Remove ' + e.r.title, onclick: () => removeEntry(d,k)}, '×'))),
+        h('div', {class:'dayacts'},
+          h('button', {class:'btn small ' + (entries.length ? 'ghost' : 'primary'), onclick: () => { S.picking = d; go('discover'); }}, entries.length ? '+ Add another' : '+ Add dinner'),
+          entries.length ? null : h('button', {class:'btn small ghost', onclick: () => addNote(d,'Leftovers')}, 'Leftovers'),
+          entries.length ? null : h('button', {class:'btn small ghost', onclick: () => addNote(d,'Eating out')}, 'Eating out'))));
+  })));
+}
+function bumpServes(e, dir){ e.serves = Math.min(20, Math.max(1, servingsFor(e) + dir)); savePlan(); renderPlan(); }
+function removeEntry(d,k){ S.plan.days[d].splice(k,1); savePlan(); renderPlan(); }
+function addNote(d,label){ (S.plan.days[d] ||= []).push({type:'note', label}); savePlan(); renderPlan(); }
+function addToDay(d, r){
+  (S.plan.days[d] ||= []).push({type:'meal', key: uidGen(), r: snapshot(r), serves: null});
+  savePlan(); toast(r.title + ' added to ' + DAY_NAMES[d]);
+}
+function fillWeek(){
+  const used = new Set(DAYS.flatMap(d => (S.plan.days[d]||[]).filter(e => e.type === 'meal').map(e => e.r.title)));
+  let pool = shuffle(allRecipes().filter(matches).filter(r => !used.has(r.title)));
+  if (pool.length < 3) pool = shuffle(allRecipes().filter(r => !used.has(r.title)));
+  let added = 0;
+  for (const d of DAYS){ if ((S.plan.days[d]||[]).length || !pool.length) continue; addToDayQuiet(d, pool.shift()); added++; }
+  if (added){ savePlan(); toast(added + (added === 1 ? ' night filled' : ' nights filled') + ' using your filters'); } else toast('Every night already has a plan');
+  renderPlan();
+}
+function addToDayQuiet(d, r){ (S.plan.days[d] ||= []).push({type:'meal', key: uidGen(), r: snapshot(r), serves: null}); }
+let clearArmed = false;
+function clearWeek(e){
+  if (!clearArmed){ clearArmed = true; e.target.textContent = 'Tap again to clear'; setTimeout(() => { clearArmed = false; if (S.view === 'plan') renderPlan(); }, 3000); return; }
+  clearArmed = false; S.plan.days = {}; S.plan.checked = {}; S.plan.extras = S.plan.extras.filter(x => !x.done); savePlan(); renderPlan(); toast('Week cleared');
+}
+function weekText(){
+  const dates = weekDates();
+  return 'Our dinners, week of ' + fmtDate(dates[0]) + '\n' + DAYS.map((d,i) => {
+    const e = S.plan.days[d] || []; return DAY_NAMES[d].slice(0,3) + ' ' + fmtDate(dates[i]) + ': ' + (e.length ? e.map(x => x.type === 'note' ? x.label : x.r.title).join(' + ') : '—');
+  }).join('\n');
+}
+function copyWeek(){ copyText(weekText(), 'Week copied. Paste it into a message to share.'); }
+function copyText(text, ok){
+  const fallback = () => openSheet([h('h2', null, 'Copy this'), h('p', {class:'sub'}, 'Select all and copy, then paste it wherever you like.'),
+    (() => { const t = h('textarea', {class:'copybox', readonly:true, id:'copybox'}); t.value = text; setTimeout(() => { t.focus(); t.select(); }, 50); return t; })()]);
+  try { navigator.clipboard.writeText(text).then(() => toast(ok), fallback); } catch { fallback(); }
+}
+
+function singular(n){
+  return n.toLowerCase().trim().split(/\s+/).map((w, k, all) => k < all.length - 1 ? w
+    : /(tomato|potato)es$/.test(w) ? w.slice(0,-2) : /[^s]s$/.test(w) && w.length > 3 ? w.slice(0,-1) : w).join(' ');
+}
+function shopItems(){
+  const map = new Map();
+  for (const d of DAYS) for (const e of S.plan.days[d] || []){
+    if (e.type !== 'meal') continue;
+    const f = servingsFor(e) / (e.r.serves || 4);
+    for (const i of e.r.ing){
+      let q = i.q, u = normUnit(i.u);
+      if (u === 'kg'){ q = q != null ? q*1000 : q; u = 'g'; } if (u === 'l'){ q = q != null ? q*1000 : q; u = 'ml'; }
+      const key = singular(i.n) + '|' + u;
+      const it = map.get(key) || {key, n: i.n, u, q: 0, hasQ: false, a: AISLES.includes(i.a) ? i.a : guessAisle(i.n), meals: new Set()};
+      if (i.n.length > it.n.length) it.n = i.n;   // prefer the plural spelling ("capsicums") when merging
+      if (q != null){ it.q += q*f; it.hasQ = true; }
+      it.meals.add(e.r.title); map.set(key, it);
+    }
+  }
+  return [...map.values()];
+}
+function renderShop(){
+  const v = $('#v-shop'); v.replaceChildren();
+  const items = shopItems(); const extras = S.plan.extras; const n = mealsCount();
+  const left = items.filter(i => !S.plan.checked[i.key]).length + extras.filter(x => !x.done).length;
+  v.append(h('div', null, h('div', {class:'lede'}, 'Shopping list'),
+    h('p', {class:'sub'}, n ? left + ' to get for ' + n + (n === 1 ? ' dinner' : ' dinners') + '. Tick off anything you already have.' : 'Plan a few dinners and your list builds itself.')));
+  v.append(h('div', {class:'row'},
+    h('button', {class:'btn primary', disabled: !(items.length || extras.length) || null, onclick: copyShop}, 'Copy list'),
+    h('button', {class:'btn ghost', disabled: !(Object.keys(S.plan.checked).length || extras.some(x => x.done)) || null, onclick: () => { S.plan.checked = {}; extras.forEach(x => x.done = false); savePlan(); renderShop(); }}, 'Untick all')));
+  const addIn = h('input', {id:'extra', type:'text', placeholder:'Add something else (milk, nappies…)', 'aria-label':'Add an item'});
+  const addExtra = () => { const t = addIn.value.trim(); if (!t) return; extras.push({id: uidGen(), n: t.slice(0,80), done: false}); savePlan(); renderShop(); $('#extra').focus(); };
+  addIn.addEventListener('keydown', e => { if (e.key === 'Enter') addExtra(); });
+  v.append(h('div', {class:'addline'}, addIn, h('button', {class:'btn', onclick: addExtra}, 'Add')));
+  if (!items.length && !extras.length){
+    v.append(h('div', {class:'empty'}, h('b', null, 'Your list is empty'), 'Head to Week, add some dinners, and every ingredient lands here sorted by aisle.',
+      h('div', {style:'margin-top:12px'}, h('button', {class:'btn primary', onclick: () => go('plan')}, 'Plan the week'))));
+    return;
+  }
+  const groups = AISLES.map(a => [a, items.filter(i => i.a === a)]);
+  if (extras.length) groups.push(['Extras', null]);
+  for (const [a, list] of groups){
+    if (list && !list.length) continue;
+    const rows = list ? list.sort((x,y) => (!!S.plan.checked[x.key]) - (!!S.plan.checked[y.key]) || x.n.localeCompare(y.n)).map(i => {
+      const done = !!S.plan.checked[i.key]; const q = i.hasQ ? fmtQty(i.q, i.u, true) : '';
+      return h('label', {class:'item' + (done ? ' done' : '')},
+        h('input', {type:'checkbox', checked: done || null, onchange: e => { if (e.target.checked) S.plan.checked[i.key] = true; else delete S.plan.checked[i.key]; savePlan(); renderShop(); }}),
+        h('span', {class:'it'}, q ? h('span', {class:'q'}, q + ' ') : null, i.n, h('small', null, 'for ' + [...i.meals].join(', '))));
+    }) : extras.map(x => h('label', {class:'item' + (x.done ? ' done' : '')},
+        h('input', {type:'checkbox', checked: x.done || null, onchange: e => { x.done = e.target.checked; savePlan(); renderShop(); }}),
+        h('span', {class:'it'}, x.n),
+        h('button', {class:'x', 'aria-label':'Remove ' + x.n, onclick: ev => { ev.preventDefault(); S.plan.extras = extras.filter(y => y !== x); savePlan(); renderShop(); }}, '×')));
+    v.append(h('div', {class:'aisle'}, h('h3', null, a), rows));
+  }
+}
+function copyShop(){
+  const items = shopItems(); const lines = ['Shopping list – week of ' + fmtDate(weekDates()[0])];
+  for (const a of AISLES){ const l = items.filter(i => i.a === a && !S.plan.checked[i.key]); if (!l.length) continue;
+    lines.push('', a.toUpperCase(), ...l.map(i => '☐ ' + (i.hasQ ? fmtQty(i.q, i.u, true) + ' ' : '') + i.n)); }
+  const ex = S.plan.extras.filter(x => !x.done); if (ex.length) lines.push('', 'EXTRAS', ...ex.map(x => '☐ ' + x.n));
+  copyText(lines.join('\n'), 'List copied. Paste it into Notes or a message.');
+}
+
+
+
+// ---------- add recipe ----------
+let draftPhoto = null;
+function renderAdd(){
+  const v = $('#v-add');
+  const prev = v.querySelector('form') ? collectForm() : null;
+  v.replaceChildren();
+  const shared = cloud === 'on';
+  v.append(h('div', null, h('div', {class:'lede'}, 'Add a recipe'),
+    h('p', {class:'sub'}, 'Share a family favourite. Snap the dish or the recipe card so everyone knows what they’re making.')));
+  const note = cloudNote(); if (note) v.append(note);
+  const fileIn = h('input', {type:'file', accept:'image/*', id:'photoIn', hidden:true, onchange: onPhoto});
+  const photoBox = h('div', {class:'photo'},
+    draftPhoto ? h('img', {src: draftPhoto, alt:'Recipe photo'}) : h('div', {class:'meta'}, 'A photo of the dish or the recipe itself'),
+    h('div', {class:'row', style:'justify-content:center'},
+      h('button', {type:'button', class:'btn', onclick: () => fileIn.click()}, draftPhoto ? 'Change photo' : 'Take or choose a photo'),
+      draftPhoto ? h('button', {type:'button', class:'btn ghost', onclick: () => { draftPhoto = null; renderAdd(); }}, 'Remove') : null),
+    fileIn);
+  const f = h('form', {class:'add', onsubmit: saveForm},
+    photoBox,
+    h('div', {class:'field'}, h('label', {for:'fTitle'}, 'Recipe name'), h('input', {id:'fTitle', required:true, maxlength:80, placeholder:'Nan’s chicken casserole'})),
+    h('div', {class:'cols'},
+      h('div', {class:'field'}, h('label', {for:'fProtein'}, 'Main'), h('select', {id:'fProtein'}, PROTEINS.map(p => h('option', null, p)))),
+      h('div', {class:'field'}, h('label', {for:'fCuisine'}, 'Style'), h('select', {id:'fCuisine'}, CUISINES.map(c => h('option', {value:c}, c === 'Other' ? 'Other / family classic' : c)))),
+      h('div', {class:'field'}, h('label', {for:'fServes'}, 'Serves'), h('input', {id:'fServes', type:'number', min:1, max:20, value:4, inputmode:'numeric'})),
+      h('div', {class:'field'}, h('label', {for:'fTime'}, 'Minutes'), h('input', {id:'fTime', type:'number', min:1, max:720, value:30, inputmode:'numeric'}))),
+    h('div', {class:'field'}, h('span', {class:'lab'}, 'Good for'), h('div', {class:'checks'}, TAGS.map(t => h('label', null, h('input', {type:'checkbox', id:'fTag-' + t}), TAG_LABELS[t])))),
+    h('div', {class:'field'}, h('label', {for:'fIng'}, 'Ingredients'), h('textarea', {id:'fIng', placeholder:'500 g chicken thigh\n2 onions\n1 tin diced tomatoes\n1 cup rice'}),
+      h('span', {class:'hint'}, 'One per line, amount first. These go straight onto the shopping list.')),
+    h('div', {class:'field'}, h('label', {for:'fSteps'}, 'Method'), h('textarea', {id:'fSteps', placeholder:'Brown the chicken.\nAdd the onion and cook until soft.\n…'}),
+      h('span', {class:'hint'}, 'One step per line.')),
+    shared ? h('div', {class:'field'}, h('label', {for:'fName'}, 'Your name'), h('input', {id:'fName', maxlength:40, placeholder:'Shown as “Added by …”', value: lsGet(NAME_KEY) || ''})) : null,
+    h('div', {class:'saveinfo'}, shared ? 'Saves to the shared recipe book, so everyone with the link can cook it.' : 'Saved on this phone until the shared book is connected.'),
+    h('button', {class:'btn primary', type:'submit', id:'saveBtn'}, shared ? 'Save to our recipe book' : 'Save recipe'));
+  v.append(f);
+  if (prev) fillForm(prev);
+}
+function collectForm(){
+  const val = id => document.getElementById(id)?.value ?? '';
+  return {title: val('fTitle'), protein: val('fProtein'), cuisine: val('fCuisine'), serves: val('fServes'), time: val('fTime'),
+    tags: TAGS.filter(t => document.getElementById('fTag-' + t)?.checked), ingText: val('fIng'), stepsText: val('fSteps')};
+}
+function fillForm(d){
+  const set = (id,v) => { const el = document.getElementById(id); if (el && v != null && v !== '') el.value = v; };
+  set('fTitle', d.title); set('fProtein', d.protein); set('fCuisine', d.cuisine); set('fServes', d.serves); set('fTime', d.time);
+  set('fIng', d.ingText); set('fSteps', d.stepsText);
+  for (const t of TAGS){ const el = document.getElementById('fTag-' + t); if (el) el.checked = (d.tags||[]).includes(t); }
+}
+async function compressImage(file, maxDim = 1000, maxChars = 250000){
+  const url = URL.createObjectURL(file);
+  try {
+    const img = await new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = url; });
+    let scale = Math.min(1, maxDim / Math.max(img.naturalWidth, img.naturalHeight)), q = 0.78;
+    for (let k = 0; k < 7; k++){
+      const c = document.createElement('canvas'); c.width = Math.max(1, Math.round(img.naturalWidth*scale)); c.height = Math.max(1, Math.round(img.naturalHeight*scale));
+      c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+      const d = c.toDataURL('image/jpeg', q); if (d.length <= maxChars) return d;
+      scale *= 0.8; q = Math.max(0.5, q - 0.06);
+    }
+  } catch {} finally { URL.revokeObjectURL(url); }
+  return null;
+}
+async function onPhoto(e){
+  const file = e.target.files?.[0]; if (!file) return;
+  const d = await compressImage(file);
+  if (!d){ toast('That photo couldn’t be opened. Try a JPEG or PNG.'); return; }
+  draftPhoto = d; renderAdd();
+}
+async function saveForm(e){
+  e.preventDefault();
+  const d = collectForm();
+  const name = (document.getElementById('fName')?.value || '').trim().slice(0,40);
+  if (name) lsSet(NAME_KEY, name);
+  const ing = d.ingText.split('\n').map(parseLine).filter(Boolean);
+  const r = cleanRecipe({title: d.title, protein: d.protein, cuisine: d.cuisine, serves: +d.serves, time: +d.time, tags: d.tags, ing,
+    steps: d.stepsText.split('\n'), photo: draftPhoto}, 'mine', 'm-' + uidGen());
+  if (!r){ toast('Give the recipe a name first'); return; }
+  if (!r.ing.length){ toast('Add at least one ingredient'); return; }
+  const btn = $('#saveBtn'); btn.disabled = true; btn.textContent = 'Saving…';
+  const where = await storeRecipe(r, name || lsGet(NAME_KEY) || '');
+  draftPhoto = null; $('#v-add').querySelector('form').reset();
+  renderAdd();
+  toast(where === 'shared' ? r.title + ' is in the recipe book' : r.title + ' saved on this phone');
+}
+async function storeRecipe(r, byName){
+  if (cloud === 'on' && F){
+    const body = {title: r.title, cuisine: r.cuisine, protein: r.protein, tags: r.tags, time: r.time, serves: r.serves, blurb: r.blurb, steps: r.steps, ing: r.ing,
+      photo: r.photo, by: uid, byName: String(byName || '').slice(0,40), createdAt: Date.now()};
+    try { await F.setDoc(F.doc(fsdb, 'recipes', 'r-' + uidGen()), body); return 'shared'; }
+    catch (err) { toast('Couldn’t reach the shared book, so this one is saved on this phone.'); }
+  }
+  const mine = {...r, src: 'mine', id: 'm-' + uidGen()};
+  S.mine.unshift(mine);
+  if (!lsSet(MINE_KEY, S.mine)){ mine.photo = null; lsSet(MINE_KEY, S.mine); }
+  return 'local';
+}
+
+// ---------- recipe sheet ----------
+let lastFocus = null;
+function openSheet(children){
+  lastFocus = document.activeElement;
+  const sh = $('#sheet');
+  sh.replaceChildren(h('div', {class:'grab'}), h('button', {class:'close', 'aria-label':'Close', onclick: closeSheet}, '×'),
+    ...(Array.isArray(children) && children[0]?.classList?.contains('hero') ? [children.shift()] : []),
+    h('div', {class:'content wrap'}, children));
+  sh.hidden = false; $('#scrim').hidden = false; sh.scrollTop = 0; document.body.style.overflow = 'hidden';
+  sh.querySelector('.close').focus();
+}
+function closeSheet(){ $('#sheet').hidden = true; $('#scrim').hidden = true; document.body.style.overflow = ''; lastFocus?.focus?.(); }
+let delArmed = false;
+function openRecipe(r, entry){
+  const serves = entry ? servingsFor(entry) : S.plan.servings; const f = serves / (r.serves || 4);
+  const hero = tile(r, 'hero');
+  const dates = weekDates();
+  const kids = [hero,
+    h('div', null, h('h2', null, r.title), r.blurb ? h('p', {class:'sub'}, r.blurb) : null, byLine(r) ? h('p', {class:'sub'}, byLine(r)) : null),
+    h('div', {class:'facts'}, h('span', {class:'fact'}, minutes(r.time)), h('span', {class:'fact'}, r.protein), r.cuisine !== 'Other' ? h('span', {class:'fact'}, r.cuisine) : null,
+      r.tags.map(t => h('span', {class:'fact'}, TAG_LABELS[t])))];
+  if (!entry){
+    kids.push(h('div', {class:'label'}, S.picking ? 'Add to your week' : 'Add to a night this week'));
+    if (S.picking) kids.push(h('button', {class:'btn primary', onclick: () => { addToDay(S.picking, r); S.picking = null; closeSheet(); go('plan'); }}, 'Add to ' + DAY_NAMES[S.picking]));
+    kids.push(h('div', {class:'daypick'}, DAYS.map((d,i) => { const c = (S.plan.days[d]||[]).filter(e => e.type === 'meal').length;
+      return h('button', {class: c ? 'has' : '', 'aria-label':'Add to ' + DAY_NAMES[d], onclick: () => { addToDay(d, r); if (S.picking){ S.picking = null; closeSheet(); go('plan'); } else openRecipe(r); }},
+        DAY_NAMES[d].slice(0,3), h('small', null, c ? c + ' planned' : dates[i].getDate())); })));
+  }
+  kids.push(h('div', {class:'scale'}, serves === r.serves ? 'Amounts for ' + serves + ' people.' : 'Amounts scaled for ' + serves + ' people (the original serves ' + r.serves + ').'));
+  kids.push(h('div', {class:'label'}, 'Ingredients'),
+    h('ul', {class:'ing'}, r.ing.map(i => h('li', null, h('span', {class:'qq'}, fmtQty(i.q != null ? i.q*f : null, i.u) || '–'), h('span', null, i.n)))));
+  if (r.steps.length) kids.push(h('div', {class:'label'}, 'Method'), h('ol', {class:'steps'}, r.steps.map(s => h('li', null, s))));
+  const acts = h('div', {class:'row'});
+  const canDelete = r.src === 'mine' || (r.src === 'shared' && F && uid && r.by === uid);
+  if (canDelete) acts.append(h('button', {class:'btn danger', onclick: async ev => {
+    if (!delArmed){ delArmed = true; ev.target.textContent = 'Tap again to delete'; setTimeout(() => delArmed = false, 3000); return; }
+    delArmed = false;
+    if (r.src === 'mine'){ S.mine = S.mine.filter(x => x.id !== r.id); lsSet(MINE_KEY, S.mine); }
+    else { try { await F.deleteDoc(F.doc(fsdb, 'recipes', r.id)); } catch { toast('Couldn’t delete that one'); return; } }
+    toast('Recipe deleted'); closeSheet(); render(); }}, 'Delete recipe'));
+  if (acts.childNodes.length) kids.push(acts);
+  openSheet(kids);
+}
+
+// ---------- shell ----------
+function renderPips(){
+  const n = mealsCount(); const pp = $('#pipPlan'); pp.hidden = !n; pp.textContent = n;
+  const left = n ? shopItems().filter(i => !S.plan.checked[i.key]).length + S.plan.extras.filter(x => !x.done).length : S.plan.extras.filter(x => !x.done).length;
+  const ps = $('#pipShop'); ps.hidden = !left; ps.textContent = left;
+  $('#hhCount').textContent = S.plan.servings;
+}
+function render(){
+  renderPips();
+  if (S.view === 'discover') renderDiscover();
+  else if (S.view === 'plan') renderPlan();
+  else if (S.view === 'shop') renderShop();
+}
+function go(view){
+  S.view = view;
+  for (const b of document.querySelectorAll('.nav button')){ if (b.dataset.view === view) b.setAttribute('aria-current','page'); else b.removeAttribute('aria-current'); }
+  for (const k of ['discover','plan','shop','add']) $('#v-' + k).hidden = k !== view;
+  if (view !== 'discover' && view !== 'plan') S.picking = null;
+  render(); window.scrollTo(0,0);
+}
+document.querySelectorAll('.nav button').forEach(b => b.addEventListener('click', () => { if (b.dataset.view !== 'discover') S.picking = null; go(b.dataset.view); }));
+$('#hhMinus').addEventListener('click', () => { S.plan.servings = Math.max(1, S.plan.servings - 1); savePlan(); render(); });
+$('#hhPlus').addEventListener('click', () => { S.plan.servings = Math.min(20, S.plan.servings + 1); savePlan(); render(); });
+$('#scrim').addEventListener('click', closeSheet);
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && !$('#sheet').hidden) closeSheet(); });
+
+const start = (location.hash || '').slice(1);
+renderAdd();
+go(['discover','plan','shop','add'].includes(start) ? start : 'discover');
+initCloud();
+if ('serviceWorker' in navigator && location.protocol === 'https:') navigator.serviceWorker.register('sw.js').catch(() => {});
+}
+</script>
+</body>
+</html>
